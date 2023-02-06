@@ -89,6 +89,56 @@ router.post('/', (req, res) => {
   }
 })
 
+router.put('/:id', (req, res) => {
+  const post = Post.findById(req.params.id)
+  const newPost = req.body
+    post
+    .then(async post => {
+      if (!post) {
+        res.status(404).json({
+          message: "The post with the specified ID does not exist"
+        })
+      } else {
+        if (!newPost.title || !newPost.contents) {
+            res.status(400).json({
+              message: "Please provide title and contents for the post"
+            })
+          } else {
+            await Post.update(req.params.id, newPost)
+            res.status(200).json(await Post.findById(req.params.id))            
+          }
+        
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: "error getting post",
+        err: err.message
+      })
+    })    
+})
+
+router.delete('/:id', (req, res) => {
+  const post = Post.findById(req.params.id)
+    post
+    .then(async post => {
+      if (!post) {
+        res.status(404).json({
+          message: "The post with the specified ID does not exist"
+        })
+      } else {
+        await Post.remove(req.params.id)
+        res.status(200).json(post)
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        message: "error getting post",
+        err: err.message
+      })
+    })    
+})
+
 router.use('*', (req, res) => {
   res.status(404).json({
     message: "Page not found"
